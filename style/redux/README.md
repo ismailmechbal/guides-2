@@ -23,20 +23,20 @@ order to isolate it from app logic
 
 ```js
 // actions/todo.js
-import { todo } from '../constants/actionTypes';
+import actionTypes from '../constants/actionTypes';
 import * as api from '../../utils/api';
 
 export function addTodoSync() {
   return {
-    type: todo.addTodoSync,
+    type: actionTypes.ADD_TODO,
     payload: { foo: 'bar' },
   };
 }
 
-export function fetchTodoAsync() {
+export function addTodoAsync() {
   return {
-    type: todo.fetchTodo,
-    payload: api.fetchTodo(),
+    type: actionTypes.ADD_TODO_ASYNC,
+    payload: api.addTodoAsync(),
   };
 }
 ```
@@ -65,32 +65,36 @@ application structure.
 ## Action types
 
 - Put action types in one file of constants.
-- Group related action types in an object.
-- Expose each object as a named export.
+- Use a tool like [mirror-creator] for generating constant strings
 - Expose all action types as the default export.
 
 ```js
 // constants/actionTypes.js
-export const todo = {
-  fetch: 'FETCH_TODO',
-  set: 'SET_TODO',
-};
+import mirrorCreator from 'mirror-creator';
 
-export default {
-  todo,
-};
+export default mirrorCreator([
+  'ADD_TODO',
+  'ADD_TODO_ASYNC',
+]);
+
+// actions/todo.js
+import actionTypes from '../constants/actionTypes';
+
+dispatch({ type: actionTypes.ADD_TODO });
 ```
 
 Action types identify the nature of the action that has occurred. Two actions
 with the same type MUST be strictly equivalent (using ===). By convention, type
 is usually a string constant or a Symbol.
 
+[mirror-creator]: https://github.com/shakacode/mirror-creator
+
 ## Reducers
 
 - Expose reducers as the default export.
 - Expose handlers as named exports for unit testing.
 - Use constants instead of inline strings for action types.
-- Always define an `INITIAL_STATE` variable.
+- If applicable, define an `INITIAL_STATE` variable.
 
 ```js
 // using redux-promise-middleware
@@ -98,7 +102,7 @@ is usually a string constant or a Symbol.
 
 // reducers/todo.js
 import typeToReducer from 'type-to-reducer';
-import { todo } from '../constants/actionTypes';
+import actionTypes from '../constants/actionTypes';
 
 const INITIAL_STATE = {
   data: {},
@@ -129,8 +133,8 @@ export const addTodoAsync = {
 
 export default typeToReducer(
   {
-    [todo.add]: addTodo,
-    [todo.addAsync]: addTodoAsync,
+    [actionTypes.ADD_TODO]: addTodo,
+    [actionTypes.ADD_TODO_ASYNC]: addTodoAsync,
   },
   INITIAL_STATE
 );
@@ -173,7 +177,7 @@ following format:
 ```js
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { fetchTodo } from '../../redux/actions/todo';
+import { addTodoAsync } from '../../redux/actions/todo';
 
 export class TodoList extends React.Component { ... }
 
@@ -182,7 +186,7 @@ function mapStateToProps(state) {
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ fetchTodo }, dispatch);
+  return bindActionCreators({ addTodoAsync }, dispatch);
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(TodoList);
