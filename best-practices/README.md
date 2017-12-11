@@ -14,7 +14,8 @@ General
 * Avoid premature optimizations. Get a version 1.0 out there as soon as you
   can. Until you have some users to measure, you're optimizing based on guesses.
 * Use `bin/setup` for initial setup of the project and for development
-  environment seed data.
+  environment seed data. After running this script in a clean environment you
+  should be able to run the tests and those should pass.
 * Use `bin/server` for starting all the processes required to run the project
   in a development environment, when suitable.
 * Use `bin/deploy` for deploying the project to staging and production
